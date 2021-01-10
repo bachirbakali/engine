@@ -12,7 +12,7 @@ use qovery_engine::transaction::TransactionResult;
 
 use crate::aws::aws_environment::{delete_environment, deploy_environment};
 
-use self::test_utilities::utilities::{generate_id, engine_run_test};
+use self::test_utilities::utilities::{engine_run_test, generate_id};
 
 /**
 **
@@ -22,7 +22,6 @@ use self::test_utilities::utilities::{generate_id, engine_run_test};
 
 // to check overload between several databases and apps
 #[test]
-#[ignore]
 fn deploy_an_environment_with_3_databases_and_3_apps() {
     init();
 
@@ -63,7 +62,6 @@ fn deploy_an_environment_with_3_databases_and_3_apps() {
 
 // this test ensure containers databases are never restarted, even in failover environment case
 #[test]
-#[ignore]
 fn postgresql_failover_dev_environment_with_all_options() {
     init();
 
@@ -180,9 +178,9 @@ fn postgresql_deploy_a_working_development_environment_with_all_options() {
 fn postgresql_deploy_a_working_environment_and_redeploy() {
     engine_run_test(|| {
         let span = span!(
-        Level::INFO,
-        "postgresql_deploy_a_working_environment_and_redeploy"
-    );
+            Level::INFO,
+            "postgresql_deploy_a_working_environment_and_redeploy"
+        );
         let _enter = span.enter();
 
         let context = context();
@@ -382,7 +380,7 @@ fn test_postgresql_configuration(
             TransactionResult::UnrecoverableError(_, _) => assert!(true),
         };
         return test_name.to_string();
-        })
+    })
 }
 
 // Postgres environment environment
@@ -414,7 +412,6 @@ fn postgresql_v11_deploy_a_working_dev_environment() {
 
 #[test]
 fn postgresql_v12_deploy_a_working_dev_environment() {
-
     let context = context();
     let environment = test_utilities::aws::working_minimal_environment(&context);
     test_postgresql_configuration(
@@ -592,6 +589,7 @@ fn test_mongodb_configuration(
 
 // development environment
 #[test]
+#[ignore]
 fn mongodb_v3_6_deploy_a_working_dev_environment() {
     let context = context();
     let environment = test_utilities::aws::working_minimal_environment(&context);
@@ -786,6 +784,7 @@ fn test_mysql_configuration(
 
 // MySQL self-hosted environment
 #[test]
+#[ignore]
 fn mysql_v5_7_deploy_a_working_dev_environment() {
     let context = context();
     let environment = test_utilities::aws::working_minimal_environment(&context);

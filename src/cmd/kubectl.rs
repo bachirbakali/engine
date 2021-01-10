@@ -568,7 +568,7 @@ where
                     Some("Namespace contains terraform tfstates in secret, can't delete it !"),
                 ));
             }
-            false => info!(
+            false => debug!(
                 "Namespace {} doesn't contain any tfstates, able to delete it",
                 namespace
             ),
@@ -730,6 +730,36 @@ where
     )
 }
 
+pub fn kubectl_delete_objects_in_all_namespaces<P>(
+    kubernetes_config: P,
+    object: &str,
+    envs: Vec<(&str, &str)>,
+) -> Result<(), SimpleError>
+where
+    P: AsRef<Path>,
+{
+    let result = kubectl_exec::<P, KubernetesList<Item>>(
+        vec!["delete", &object.to_string(), "--all-namespaces", "--all"],
+        kubernetes_config,
+        envs,
+    );
+
+    match result {
+        Ok(_) => Ok(()),
+        Err(e) => {
+            match &e.message {
+                Some(message) => {
+                    if message.contains("No resources found") || message.ends_with(" deleted") {
+                        return Ok(());
+                    }
+                }
+                None => {}
+            };
+            Err(e)
+        }
+    }
+}
+
 fn kubectl_exec<P, T>(
     args: Vec<&str>,
     kubernetes_config: P,
@@ -762,8 +792,6 @@ where
     let result = match serde_json::from_str::<T>(output_string.as_str()) {
         Ok(x) => x,
         Err(err) => {
-            error!("{:?}", err);
-            error!("{}", output_string.as_str());
             return Err(SimpleError::new(
                 SimpleErrorKind::Other,
                 Some(output_string),
